@@ -131,6 +131,18 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir --resume-retries 5 onnxruntime-gpu
 # Check with $ python3 -c "import onnxruntime as ort; print(ort.__version__); print(ort.get_available_providers())"
 
+# Define the library directory for clarity and reuse
+ENV ONNX_LIB_DIR="/usr/local/lib/python3.10/dist-packages/onnxruntime/capi"
+
+# FIX: Create the symbolic link (libonnxruntime.so.1) that the dynamic loader expects at runtime.
+# This resolves the "cannot open shared object file: libonnxruntime.so.1" error.
+RUN cd ${ONNX_LIB_DIR} && \
+    ln -s libonnxruntime.so.1.23.1 libonnxruntime.so.1
+
+# Also, ensure the library path is permanently added to the runtime search path.
+# This is crucial for the operating system to find the library during execution.
+ENV LD_LIBRARY_PATH="${ONNX_LIB_DIR}:${LD_LIBRARY_PATH}"
+
 FROM ros2-px4msgs-dds-mavros-yolo-image AS image-with-onnxruntime-gpu_arm64
 # Build ONNX Runtime from source with Jetson (TensorRT) support for system Python
 # Based on https://onnxruntime.ai/docs/build/eps.html#nvidia-jetson-tx1tx2nanoxavierorin
@@ -190,6 +202,21 @@ RUN apt-get update && \
 # Stage 7 - 17+GB ##############################################################
 ################################################################################
 FROM ros2-px4msgs-dds-mavros-yolo-kissicp-zenoh-image AS aircraft-dev-image
+
+# TEMPORARY: add GStreamer packages
+RUN apt update \
+    && apt install -y --no-install-recommends \
+        rapidjson-dev \
+        libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
+RUN apt update \
+    && apt install -y --no-install-recommends \
+        gstreamer1.0-tools gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \ 
+        gstreamer1.0-libav gstreamer1.0-gl \
+        python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install PlotJuggler
 RUN apt-get update && \
