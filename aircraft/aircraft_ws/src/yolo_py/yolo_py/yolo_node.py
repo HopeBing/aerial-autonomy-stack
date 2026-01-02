@@ -17,6 +17,8 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
 
+CONF_THRESH = 0.5
+
 class YoloInferenceNode(Node):
     def __init__(self, headless, hitl, hfov, vfov):
         super().__init__('yolo_inference_node')
@@ -226,7 +228,7 @@ class YoloInferenceNode(Node):
         scores = detections[:, 4]
 
         # Filter out padding (zeros) and low confidence items
-        mask = scores > 0.5 
+        mask = scores > CONF_THRESH
         detections = detections[mask]
         scores = scores[mask]
         
