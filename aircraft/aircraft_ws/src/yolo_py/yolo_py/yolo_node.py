@@ -222,18 +222,21 @@ class YoloInferenceNode(Node):
         with Profiler("ONNX Runtime Inference"):
             outputs = self.session.run(None, {self.input_name: img})
         
-        # Check if there is any detections
         detections = outputs[0][0]
-        if detections.shape[0] == 0:
+        scores = detections[:, 4]
+
+        # Filter out padding (zeros) and low confidence items
+        mask = scores > 0.5 
+        detections = detections[mask]
+        scores = scores[mask]
+        
+        if len(scores) == 0:
             return np.array([]), np.array([]), np.array([])
 
-        # Extract columns
-        # The format from Ultralytics export(nms=True) is [x1, y1, x2, y2, score, class_id]
         x1 = detections[:, 0]
         y1 = detections[:, 1]
         x2 = detections[:, 2]
         y2 = detections[:, 3]
-        scores = detections[:, 4]
         class_ids = detections[:, 5].astype(int)
 
         # Convert coordinates
