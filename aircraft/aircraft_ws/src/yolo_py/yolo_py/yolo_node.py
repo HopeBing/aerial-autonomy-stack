@@ -17,9 +17,6 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
 
-CONF_THRESH = 0.5
-NMS_THRESH = 0.45 # Non-Maximal Suppression
-
 class YoloInferenceNode(Node):
     def __init__(self, headless, hitl, hfov, vfov):
         super().__init__('yolo_inference_node')
@@ -225,46 +222,34 @@ class YoloInferenceNode(Node):
         with Profiler("ONNX Runtime Inference"):
             outputs = self.session.run(None, {self.input_name: img})
         
-        preds = outputs[0][0].T
-        boxes = preds[:, :4]
-        scores = preds[:, 4:]
-        confidences = scores.max(axis=1)
-        class_ids = scores.argmax(axis=1)
-        
-        # Filter
-        mask = confidences > CONF_THRESH
-        
-        if not mask.any():
-            return np.array([]), np.array([]), np.array([])
-        
-        # Apply mask once
-        boxes = boxes[mask]
-        confidences = confidences[mask]
-        class_ids = class_ids[mask]
-
-        boxes = boxes.astype(np.float32)
-        nm_boxes = np.empty_like(boxes)
-        nm_boxes[:, 2] = boxes[:, 2] # Copy w
-        nm_boxes[:, 3] = boxes[:, 3] # Copy h
-        nm_boxes[:, 0] = boxes[:, 0] - (boxes[:, 2] * 0.5) # x_tl
-        nm_boxes[:, 1] = boxes[:, 1] - (boxes[:, 3] * 0.5) # y_tl
-        
-        # Apply Non-Maximal Suppression cv2.dnn.NMSBoxes expects [x_tl, y_tl, w, h]
-        indices = cv2.dnn.NMSBoxes(nm_boxes, confidences, CONF_THRESH, NMS_THRESH)
-        
-        if len(indices) == 0:
+        # Check if there is any detections
+        detections = outputs[0][0]
+        if detections.shape[0] == 0:
             return np.array([]), np.array([]), np.array([])
 
-        indices = np.array(indices).flatten() # indices might be a list or a tuple of arrays depending on cv2 version, flatten it
-        
-        boxes = boxes[indices]
-        confidences = confidences[indices]
-        class_ids = class_ids[indices]
+        # Extract columns
+        # The format from Ultralytics export(nms=True) is [x1, y1, x2, y2, score, class_id]
+        x1 = detections[:, 0]
+        y1 = detections[:, 1]
+        x2 = detections[:, 2]
+        y2 = detections[:, 3]
+        scores = detections[:, 4]
+        class_ids = detections[:, 5].astype(int)
 
+        # Convert coordinates
+        # The model gives [x1, y1, x2, y2] (Top-Left, Bottom-Right)
+        # The node expects [cx, cy, w, h] (Center X, Center Y, Width, Height)
+        w = x2 - x1
+        h = y2 - y1
+        cx = x1 + (w / 2)
+        cy = y1 + (h / 2)
+        boxes = np.vstack((cx, cy, w, h)).T
+
+        # Scale to the original image size
         self.scale_factors[:] = [w0 / self.input_size, h0 / self.input_size, w0 / self.input_size, h0 / self.input_size]
         boxes *= self.scale_factors
         
-        return boxes, confidences, class_ids
+        return boxes, scores, class_ids
 
     def publish_detections(self, frame_shape, boxes, confidences, class_ids):
         h, w = frame_shape[:2]
