@@ -100,7 +100,7 @@ RUN /yolo-env/bin/pip3 install --no-cache-dir --upgrade pip && \
     /yolo-env/bin/pip3 install --no-cache-dir --resume-retries 5 ultralytics onnx
 # Check YOLO with $ /yolo-env/bin/python3 -c "import ultralytics; print(ultralytics.__version__)"
 
-# Test ONNX export (WARNING: removing this step from this stage can break px4_msgs build in later stages) 
+# Test ONNX export (WARNING: removing this step from this stage can break px4_msgs build in later stages)
 WORKDIR /aas/yolo
 RUN /yolo-env/bin/python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt').export(format='onnx', opset=12)" && \
     mv yolov8n.onnx unused.onnx
