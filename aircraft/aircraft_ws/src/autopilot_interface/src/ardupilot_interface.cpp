@@ -655,7 +655,11 @@ void ArdupilotInterface::offboard_handle_accepted(const std::shared_ptr<rclcpp_a
             offboarding = false;
             // This is only sent once but it could be implemented with a FSM to verify the mode is changed
             auto set_mode_request = std::make_shared<SetMode::Request>();
-            set_mode_request->custom_mode = "LOITER";
+            if (mav_type_ == 2) { // Multicopter
+                set_mode_request->custom_mode = "BRAKE";
+            } else if (mav_type_ == 1) { // Fixed-wing/VTOL
+                set_mode_request->custom_mode = "LOITER";
+            }
             set_mode_client_->async_send_request(set_mode_request,
                 [this](rclcpp::Client<SetMode>::SharedFuture future) {
                     if (future.get()->mode_sent) {
@@ -1081,7 +1085,11 @@ void ArdupilotInterface::abort_action()
 {
     // This is only sent once to be non-blocking but it could be implemented with a FSM to ensure the mode is changed
     auto set_mode_request = std::make_shared<SetMode::Request>();
-    set_mode_request->custom_mode = "LOITER";
+    if (mav_type_ == 2) { // Multicopter
+        set_mode_request->custom_mode = "BRAKE";
+    } else if (mav_type_ == 1) { // Fixed-wing/VTOL
+        set_mode_request->custom_mode = "LOITER";
+    }
     set_mode_client_->async_send_request(set_mode_request,
         [this](rclcpp::Client<SetMode>::SharedFuture future) {
             if (future.get()->mode_sent) {
