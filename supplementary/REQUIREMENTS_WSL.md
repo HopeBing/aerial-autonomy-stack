@@ -2,7 +2,7 @@
 
 > These instructions are tested using Windows 11 Enterprise 23H2 (OS build 22631.6199) on an i7-11 with 32GB RAM and RTX A2000
 
-## Setup WSLg for Ubuntu 22
+## Setup WSL for Ubuntu 22
 
 > The latest Windows Subsystem for Linux (WSL2) and WSLg (WSL2 extension with GUI capabilities) are included in Windows 11
 
@@ -69,7 +69,7 @@ sudo apt update && sudo apt install -y mesa-utils
 glxinfo -B                          # Check the NVIDIA GPU is the OpenGL renderer
 ```
 
-## Install Docker Engine inside WSLg
+## Install Docker Engine inside WSL
 
 ```sh
 wsl ~                               # Access WSL from Windows PowerShell
@@ -106,7 +106,7 @@ newgrp docker                       # Reboot (exit; wsl --shutdown; wsl ~)
 docker run hello-world              # Test Docker is working without sudo
 ```
 
-## Install NVIDIA Container Toolkit inside WSLg
+## Install NVIDIA Container Toolkit inside WSL
 
 ```sh
 wsl ~                               # Access WSL from Windows PowerShell

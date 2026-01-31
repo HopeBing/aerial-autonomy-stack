@@ -230,8 +230,12 @@ SERIAL2_PROTOCOL MAVLink2
 > Match ArduPilot parameter `SYSID_THISMAV` with the `DRONE_ID` used to launch `./deploy_run.sh`: this is the `ROS_DOMAIN_ID` of the aircraft container
 
 <!-- 
+
+## Additional Resources
+
 - [ArduPilot serial configuration](https://ardupilot.org/copter/docs/common-serial-options.html)
 - [Jetson baseboard serial configuration](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#serial-connection)
 - [MAVROS connection](https://github.com/mavlink/mavros/blob/ros2/mavros/README.md)
 - [Requesting MAVLink data from ArduPilot](https://ardupilot.org/dev/docs/mavlink-requesting-data.html)
+
 -->
