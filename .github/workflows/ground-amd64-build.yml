@@ -1,11 +1,7 @@
 name: ground-image amd64
 
 on:
-  schedule:
-    - cron: '0 3 * * 6'
-  workflow_dispatch: {}
-  pull_request:
-    branches: [ "main" ]
+  workflow_call: {}
 
 jobs:
   build:
@@ -63,14 +59,19 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Determine Docker Tag
+      - name: Determine Docker tag
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_NUMBER: ${{ github.event.number }}
+          REF_NAME: ${{ github.ref_name }}
+          REF: ${{ github.ref }}
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            echo "DOCKER_TAG=pr-${{ github.event.number }}" >> $GITHUB_ENV
-          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          if [ "$EVENT_NAME" == "pull_request" ]; then
+            echo "DOCKER_TAG=pr-${EVENT_NUMBER}" >> $GITHUB_ENV
+          elif [ "$REF" == "refs/heads/main" ]; then
             echo "DOCKER_TAG=latest" >> $GITHUB_ENV
           else
-            BRANCH_TAG=$(echo "${{ github.ref_name }}" | tr '/' '-')
+            BRANCH_TAG=$(echo "$REF_NAME" | tr '/' '-')
             echo "DOCKER_TAG=${BRANCH_TAG}" >> $GITHUB_ENV
           fi
 
