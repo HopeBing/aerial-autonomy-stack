@@ -90,7 +90,7 @@ jobs:
             echo "DOCKER_TAG=${BRANCH_TAG}" >> $GITHUB_ENV
           fi
 
-      - name: Pull and verify images
+      - name: Pull and re-tag images
         run: |
           echo "Pulling images with tag: ${{ env.DOCKER_TAG }}"
           docker pull ghcr.io/jacopopan/aircraft-image:${{ env.DOCKER_TAG }}
