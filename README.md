@@ -401,7 +401,7 @@ docker stop $(docker ps -q) && docker container prune -f && docker network prune
 
 ## Jetson Deployment
 
-> AAS is tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) with Pixhawk 6X and NVIDIA Orin NX 16GB
+> AAS is tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) with Pixhawk 6X and NVIDIA Orin NX 16GB on a [X650](https://holybro.com/collections/multicopter-kit/products/x650-development-kit)
 > 
 > Read [`SETUP_AVIONICS.md`](/supplementary/SETUP_AVIONICS.md) to setup the requirements on the Jetson and configure the Pixhawk
 
@@ -431,7 +431,7 @@ DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false HEADLESS=true .
 <details>
 <summary><b>Advanced Topic: HITL Simulation</b> <i>(click to expand)</i></summary>
 
-> **Note:** currently, HITL covers the Jetson compute and the inter-vehicle network, support for Pixhawk HITL is WIP. 
+> **Note:** HITL simulation validates the Jetson compute and the inter-vehicle network. 
 > Use USB2.0 ASIX Ethernet adapters to add multiple network interfaces to the Jetson baseboards
 
 Set up a LAN on an arbitrary `SIM_SUBNET` with netmask `255.255.0.0` (e.g. `172.30.x.x`) between:

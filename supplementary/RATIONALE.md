@@ -55,8 +55,9 @@ For even more resources, check out [`aerial_robotic_landscape`](https://github.c
 
 > Advanced localization and mapping baselines and capabilities
 
-- [ ] Add [SuperOdom](https://github.com/superxslam/SuperOdom) baseline
-- [ ] Add [SPARK-FAST-LIO](https://github.com/MIT-SPARK/spark-fast-lio) baseline
+- [x] [KISS-ICP](https://github.com/PRBonn/kiss-icp) LiDAR odometry baseline
+- [ ] Add  LIO baselines (e.g., [SuperOdom](https://github.com/superxslam/SuperOdom),[SPARK-FAST-LIO](https://github.com/MIT-SPARK/spark-fast-lio))
+- [ ] (optional) visual-inertial baseline (e.g., [open_vins](https://github.com/rpng/open_vins), [VINS-Mono](https://github.com/HKUST-Aerial-Robotics/VINS-Mono))
 - [ ] Create an indoor (maze-like) 3D world.sdf for LIO-based navigation and mapping
 - [ ] Create an outdoor 3D world.sdf for LIO-based navigation and mapping
 - [ ] Refine the sensor model and placement of `sensor_lidar`
@@ -69,6 +70,7 @@ For even more resources, check out [`aerial_robotic_landscape`](https://github.c
 
 > SITL and perception-enabled reinforcement learning for real-world deployment
 
+- [x] Wrap FTRT, headless, steppable simulation in `aas-gym`
 - [ ] Optimize the environment `.reset()` time
 - [ ] Conditional/AP mode startup to replace `GYM_INIT_DURATION`
 - [ ] `offboard_control` references from external topics bridged by ZeroMQ
@@ -96,6 +98,11 @@ For even more resources, check out [`aerial_robotic_landscape`](https://github.c
 - Integrate more realistic flight dynamics (e.g., JSBSim)
     - https://github.com/JSBSim-Team/jsbsim
 - Integrate a VLA model bridging the `yolo_py` and `mission` packages
+- Re-instate Gazebo Sim support for Pixhawk HITL simulation using MAVLink HIL_ interface
+    - https://mavlink.io/en/messages/common.html
+    - https://github.com/tiiuae/px4-gzsim-plugins/
+    - https://docs.px4.io/main/en/simulation/hitl
+    - https://ardupilot.org/dev/docs/hitl-simulators.html
 
 -->
 
