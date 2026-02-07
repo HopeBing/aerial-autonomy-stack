@@ -10,22 +10,16 @@
   - Run "Software Updater" and restart
   - "Update All" in "Ubuntu Software" (including `killall snap-store && sudo snap refresh snap-store`)
   - Update and restart for "Device Firmware" as necessary
-- In "Software & Updates", select `nvidia-driver-580 (proprietary, tested)`
+- In "Software & Updates", select "Using NVIDIA driver metapackage from nvidia-driver-580 (proprietary)"
+- (optional) Go to "Settings" -> "Power", select  the "Performance" "Power Mode" and disable all "Power Saving Options"
 
 ```sh
 sudo apt update && sudo apt upgrade
 
-nvidia-smi                          # Should report "Driver Version: 580.65.06, CUDA Version: 13.0"
-
-# Set NVIDIA Performance Mode
-sudo prime-select nvidia            # Alternatively, use `nvidia-settings` -> "PRIME profiles" -> "NVIDIA (Performance Mode)"
-# Reboot and check in Ubuntu's "Settings" -> "About" -> "Graphics" is your NVIDIA card
-# `nvidia-smi` will show applications like Firefox and VSCode as Type G processes
-# For laptops with hybrid graphics, it is recommended to also go to "Settings" -> "Power"
-# Then, select  the "Performance" "Power Mode" and disable all "Power Saving Options"
+nvidia-smi                          # Should report something like "Driver Version: 580.65.06, CUDA Version: 13.0"
 
 sudo apt install -y mesa-utils
-glxinfo | grep "OpenGL renderer"    # Check the GPU is the OpenGL renderer
+glxinfo -B                          # Check OpenGL renderer
 ```
 
 ## Install Docker Engine

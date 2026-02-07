@@ -112,7 +112,7 @@ For even more resources, check out [`aerial_robotic_landscape`](https://github.c
 
 - [x] Host OS: [Ubuntu 22.04/24.04 (LTS, ESM 4/2034)](https://ubuntu.com/about/release-cycle)
 - [x] Jetson OS: [L4T 36 (Ubuntu 22-based)/JetPack 6 (latest major release for Orin as of 2/2026)](https://developer.nvidia.com/embedded/jetpack-archive)
-- [ ] `nvidia-driver-580` https://developer.nvidia.com/datacenter-driver-archive -> **TEST ON 590**
+- [ ] [`nvidia-driver-580`](https://developer.nvidia.com/datacenter-driver-archive) -> **TEST ON 590**
 - [x] [Docker Engine v29](https://docs.docker.com/engine/release-notes/)
 - [x] [NVIDIA Container Toolkit 1.18](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/index.html)
 - [ ] `amd64` base image: [`cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags) -> **UPDATE TO `cuda:13.1.1-cudnn-runtime-ubuntu22.04`**
