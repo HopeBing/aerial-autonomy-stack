@@ -1,6 +1,6 @@
 # aerial-autonomy-stack
 
-<!-- <img align="right" height="160" alt="" src="https://github.com/user-attachments/assets/cc13dca1-9667-46d0-847d-088d53c969a3" /> -->
+<img align="right" height="120" alt="mission-patch" src="https://github.com/user-attachments/assets/252cc420-9527-4342-9ffd-c6bec77ebdf3" />
 
 *Aerial autonomy stack* (AAS) is an all-in-one software stack to:
 
