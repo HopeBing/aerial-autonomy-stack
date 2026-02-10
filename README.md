@@ -13,9 +13,12 @@ Also read [`RATIONALE.md`](/supplementary/RATIONALE.md) or [ask Perplexity <img 
 ```bibtex
 @misc{panerati2026aas,
       title={{\ttfamily aerial-autonomy-stack}---a faster-than-real-time, autopilot-agnostic, {ROS2} framework to simulate and deploy perception-based drones}, 
-      author={Panerati, Jacopo},
+      author={Jacopo Panerati and Sina Sajjadi and Sina Soleymanpour and Varunkumar Mehta and Iraj Mantegh},
       year={2026},
-      url={https://github.com/JacopoPan/aerial-autonomy-stack}}
+      eprint={2602.07264},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2602.07264}}
 ```
 
 <details>
