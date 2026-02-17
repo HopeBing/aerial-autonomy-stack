@@ -13,7 +13,7 @@
 - [ ] Add  LIVO baselines (e.g., [SuperOdom](https://github.com/superxslam/SuperOdom), [FAST-LIVO2](https://github.com/hku-mars/FAST-LIVO2))
 - [ ] Create a 3D world.sdf for LIVO-based navigation and mapping (i.e., textured and obstacle rich)
 - [ ] Compare localization performance for a pre-defined navigation task at varying speeds
-- [ ] Develop proposed approach
+- [ ] Develop proposed approach (e.g., [DOOR-SLAM](https://github.com/MISTLab/DOOR-SLAM), [Swarm-SLAM](https://github.com/MISTLab/Swarm-SLAM))
 - [ ] Use LIVO for PX4/ArduPilot SITL control (e.g., [PX4-Multiagent-Simulation](https://github.com/TannerGilbert/PX4-Multiagent-Simulation), [Ardupilot_Multiagent_Simulation](https://github.com/aau-cns/Ardupilot_Multiagent_Simulation))
 
 ### Feature: Gymnasium RL Environment and Examples
