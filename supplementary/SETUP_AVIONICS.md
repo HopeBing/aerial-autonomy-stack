@@ -14,19 +14,20 @@ To upgrade to JetPack 6, download NVIDIA SDK Manager on the Ubuntu 22 host compu
 
 ```sh
 cd ~/Downloads
-sudo apt install ./sdkmanager_2.3.0-12626_amd64.deb 
+sudo apt install ./sdkmanager_[version]-[build#]_amd64.deb # Currently version 2.4.0, build 13235
 sdkmanager                          # Log in with your https://developer.nvidia.com account 
 ```
 
 - Put the Holybro Jetson baseboard in recovery mode with the dedicated switch
 - Connect the USB-C port closes to the fan to the computer running `sdkmanager` and power on the board
-- On Step 1, select "Jetson", "Host Machine Ubuntu 22 x86_64", "Target Hardware Jetson Orin NX" (automatically detected), "SDK Version JetPack 6.2.1"
-- On Step 2, under "Target Components", select all "Jetson Linux" (uncheck all others)
-- Accept the "terms and conditions" and click "CONTINUE" (if prompted, click "Create" folder and input the password to `sudo`)
+- On Step 1, fields "Jetson", "Host Machine Ubuntu 2x x86_64", "Target Hardware Jetson Orin NX" are auto-detected, "SDK Version JetPack 6.2.1 (rev. 1)"
+- On Step 2, under "Target Components", select all "Jetson Linux" (uncheck all others: Runtime, SDK, Services)
+- Accept the "terms and conditions" and click "CONTINUE" (if prompted, click "Create" folder and/or input the password to `sudo`)
 - Wait for `sdkmanager` to download the necessary software
 - On the flash dialog after the download, choose "OEM Pre-config", username, password, and "Storage NVMe", click "Flash"
 - On `sdkmanager` click "FINISH AND EXIT" once the process is completed
-- With a screen, mouse, and keyboard connected to the Jetson basedboad, log in, finish the configuration, power-off, put the board out of recovery mode and power-on again
+- Power-off, put the board out of recovery mode, disconnect the USB-C cable, and power-on again
+- With a screen, mouse, and keyboard connected to the Jetson basedboad, log in, finish the configuration
 - Select an appropriate "Power Mode" (e.g. MAXN or 25W)
 
 <!--
@@ -34,7 +35,7 @@ sdkmanager                          # Log in with your https://developer.nvidia.
 -->
 
 > [!WARNING]
-> At the time of writing, **Snap is broken on JetPack 6**, a fix is suggested [here](https://forums.developer.nvidia.com/t/chromium-other-browsers-not-working-after-flashing-or-updating-heres-why-and-quick-fix/338891)
+> At the time of writing, **Snap is broken on JetPack 6**, a fix is suggested [here](https://forums.developer.nvidia.com/t/chromium-other-browsers-not-working-after-flashing-or-updating-heres-why-and-quick-fix/338891) and was **tested on JP 6.2.1 (rev. 1)**
 > ```sh
 > snap download snapd --revision=24724
 > sudo snap ack snapd_24724.assert
