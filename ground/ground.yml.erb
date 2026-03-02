@@ -39,9 +39,10 @@ windows:
               echo "$processed_devs" | grep -q "$real_dev" && continue
               processed_devs="$processed_devs $real_dev"
               # Extract Vendor, Model ID and serial number
-              vid=$(udevadm info -q property -n "$real_dev" 2>/dev/null | grep "^ID_VENDOR_ID=" | cut -d= -f2)
-              mid=$(udevadm info -q property -n "$real_dev" 2>/dev/null | grep "^ID_MODEL_ID=" | cut -d= -f2)
-              serial=$(udevadm info -q property -n "$real_dev" 2>/dev/null | grep "^ID_SERIAL_SHORT=" | cut -d= -f2)
+              sys_path="/sys/class/tty/$dev_base/device/.."
+              vid=$(cat "$sys_path/idVendor" 2>/dev/null)
+              mid=$(cat "$sys_path/idProduct" 2>/dev/null)
+              serial=$(cat "$sys_path/serial" 2>/dev/null)
               # Both Holybro Long-range Sik and Microhard telemetry radios use FTDI FT231X (0403:6015)
               if [ "$vid" = "0403" ] && [ "$mid" = "6015" ]; then
                 echo "    Adding telemetry radio found at: $real_dev (serial: $serial)"
