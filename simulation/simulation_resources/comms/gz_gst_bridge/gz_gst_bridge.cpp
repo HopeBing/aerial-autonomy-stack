@@ -93,16 +93,16 @@ int main(int argc, char **argv) {
         std::cout << "Using NVIDIA GPU Encoder (nvh264enc)\n";
         pipeline_str = "appsrc name=gz_source ! queue max-size-buffers=1 leaky=downstream ! "
                         "videoconvert ! "
-                        "nvh264enc preset=low-latency-hq zerolatency=true rc-mode=cbr bitrate=1024 qp-min=15 qp-max=35 gop-size=30 ! "
+                        "nvh264enc preset=low-latency-hq zerolatency=true rc-mode=cbr bitrate=2048 qp-min=15 qp-max=35 gop-size=30 ! "
                         "rtph264pay config-interval=1 mtu=1400 ! udpsink sync=false " + ip_port;
     } else {
         std::cout << "Using CPU Encoder (x264enc)\n";
         pipeline_str = "appsrc name=gz_source ! queue max-size-buffers=1 leaky=downstream ! "
                         "videoconvert ! "
-                        "x264enc speed-preset=ultrafast tune=zerolatency bitrate=1024 key-int-max=30 ! "
+                        "x264enc speed-preset=ultrafast tune=zerolatency bitrate=2048 key-int-max=30 ! "
                         "rtph264pay config-interval=1 mtu=1400 ! udpsink sync=false " + ip_port;
     }
-    // Note: re-send full frame every 60 frames
+    // Note: re-send full frame every 30 frames
 
     // Launch Pipeline
     GError *error = nullptr;
