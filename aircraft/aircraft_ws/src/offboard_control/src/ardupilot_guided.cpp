@@ -179,7 +179,7 @@ void ArdupilotGuided::ground_tracks_callback(const ground_system_msgs::msg::Swar
     double distance_traveled = target_ground_speed * prediction_time_sec;
     double future_lat, future_lon;
     geod.Direct(label48_lat, label48_lon, target_course_deg, distance_traveled, future_lat, future_lon);
-    double future_alt = label48_alt - (label48_vd * prediction_time_sec) + 5.0; // HARDCODED: track from above the target to avoid collisions
+    double future_alt = label48_alt - (label48_vd * prediction_time_sec) + 3.0; // HARDCODED: track from above the target to avoid collisions
     // Compute bearing and elevation
     double fw_azi, bw_azi; // forward azimuth (in degrees, clockwise from North)
     geod.Inverse(own_lat, own_lon, future_lat, future_lon, closing_distance_, fw_azi, bw_azi);        
