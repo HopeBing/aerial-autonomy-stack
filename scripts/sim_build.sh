@@ -57,28 +57,26 @@ for repo_info in "${REPOS[@]}"; do
   fi
 done
 
+# Get simulation_assets from GitHub release
 ASSETS_URL="https://github.com/JacopoPan/aerial-autonomy-stack/releases/download/v1.1.0/simulation_assets.zip"
 EXPECTED_HASH="906de433a5b9a0b896b30dde1642d103c7ffeac9f71ae8d9b3f95a9847ea153a" # sha256sum simulation_assets.zip
 ZIP_FILE="$CLONE_DIR/simulation_assets.zip"
-
 DOWNLOAD_NEEDED=true
 if [ -f "$ZIP_FILE" ]; then
-    CURRENT_HASH=$(sha256sum "$ZIP_FILE" | awk '{print $1}')
-    if [ "$CURRENT_HASH" = "$EXPECTED_HASH" ]; then
-        DOWNLOAD_NEEDED=false
-    fi
+  CURRENT_HASH=$(sha256sum "$ZIP_FILE" | awk '{print $1}')
+  if [ "$CURRENT_HASH" = "$EXPECTED_HASH" ]; then
+    DOWNLOAD_NEEDED=false
+  fi
 fi
-
 if [ "$DOWNLOAD_NEEDED" = "true" ]; then
-    echo "Downloading simulation assets from $ASSETS_URL..."
-    wget -q -O "$ZIP_FILE" "$ASSETS_URL"
-    DOWNLOAD_HASH=$(sha256sum "$ZIP_FILE" | awk '{print $1}')
-    if [ "$DOWNLOAD_HASH" != "$EXPECTED_HASH" ]; then
-        echo -e "ERROR: The downloaded file hash is incorrect\nExpected: $EXPECTED_HASH\nGot: $DOWNLOAD_HASH"
-        exit 1 # Stop the script
-    fi
+  echo "Downloading simulation assets from $ASSETS_URL..."
+  wget -q -O "$ZIP_FILE" "$ASSETS_URL"
+  DOWNLOAD_HASH=$(sha256sum "$ZIP_FILE" | awk '{print $1}')
+  if [ "$DOWNLOAD_HASH" != "$EXPECTED_HASH" ]; then
+    echo -e "ERROR: The downloaded file hash is incorrect\nExpected: $EXPECTED_HASH\nGot: $DOWNLOAD_HASH"
+    exit 1 # Stop the script
+  fi
 fi
-
 # Unzip quietly (-q), overwrite (-o), into the repository root directory (-d) above scripts/ to merge into simulation/
 unzip -q -o "$ZIP_FILE" -d "$SCRIPT_DIR/.."
 
