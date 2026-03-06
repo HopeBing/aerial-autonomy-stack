@@ -28,7 +28,7 @@ GROUND="${GROUND:-false}" # Options: true, false (default)
 if [[ "$GROUND" == "true" ]]; then
   # This is a bit hacky, but allows to use the deploy_run.sh script for the ground container
   # Without GPU requirements: --device /dev/dri --gpus all --env NVIDIA_DRIVER_CAPABILITIES=all
-  # And forcing HEADLESS to false
+  # Forcing HEADLESS to false, and opening REMOTE_VIDEO_STREAMS
   xhost +local:docker # Grant access to the X server
   docker run -it --rm \
     --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
@@ -38,6 +38,7 @@ if [[ "$GROUND" == "true" ]]; then
     --env SIMULATED_TIME=$HITL \
     --env ROS_DOMAIN_ID=$GROUND_ID \
     --env HOST_INPUT_GID=$(getent group input | cut -d: -f3) \
+    --env REMOTE_VIDEO_STREAMS=true \
     --net=host \
     --privileged \
     --name ground-container \
