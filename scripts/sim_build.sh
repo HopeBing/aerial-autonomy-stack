@@ -70,7 +70,13 @@ if [ -f "$ZIP_FILE" ]; then
 fi
 if [ "$DOWNLOAD_NEEDED" = "true" ]; then
   echo "Downloading simulation assets from $ASSETS_URL..."
-  wget -q -O "$ZIP_FILE" "$ASSETS_URL"
+  wget -q \
+      --tries=3 \
+      --retry-connrefused \
+      --retry-on-http-error=403,429,500,502,503,504 \
+      --waitretry=5 \
+      --timeout=15 \
+      -O "$ZIP_FILE" "$ASSETS_URL"
   DOWNLOAD_HASH=$(sha256sum "$ZIP_FILE" | awk '{print $1}')
   if [ "$DOWNLOAD_HASH" != "$EXPECTED_HASH" ]; then
     echo -e "ERROR: The downloaded file hash is incorrect\nExpected: $EXPECTED_HASH\nGot: $DOWNLOAD_HASH"
