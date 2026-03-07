@@ -66,6 +66,23 @@ simulation/simulation_resources/simulation_worlds/suburb/meshes/suburb.fbx
 simulation/simulation_resources/simulation_worlds/town_photogrammetry/meshes/town.fbx
 simulation/simulation_resources/simulation_worlds/unicorn/meshes/simpler_unicorn.dae
 simulation/simulation_resources/simulation_worlds/unicorn/meshes/unicorn.fbx
+# v2
+simulation/simulation_resources/aircraft_models/alti_transition_quad/materials/textures/x8.tga
+simulation/simulation_resources/simulation_worlds/birch/meshes/birch.mtl
+simulation/simulation_resources/simulation_worlds/birch/meshes/birch.obj
+simulation/simulation_resources/simulation_worlds/birch/meshes/simpler_birch.mtl
+simulation/simulation_resources/simulation_worlds/birch/meshes/simpler_birch.obj
+simulation/simulation_resources/simulation_worlds/subaru/meshes/Body.bmp
+simulation/simulation_resources/simulation_worlds/subaru/meshes/Brake_Light.bmp
+simulation/simulation_resources/simulation_worlds/subaru/meshes/Bumpers.bmp
+simulation/simulation_resources/simulation_worlds/subaru/meshes/Grill.bmp
+simulation/simulation_resources/simulation_worlds/subaru/meshes/License_Plate_-_Front.bmp
+simulation/simulation_resources/simulation_worlds/subaru/meshes/License_Plate_-_Rear.bmp
+simulation/simulation_resources/simulation_worlds/subaru/meshes/Mirrors.bmp
+simulation/simulation_resources/simulation_worlds/subaru/meshes/Rear_Window.bmp
+simulation/simulation_resources/simulation_worlds/subaru/meshes/Wheel.bmp
+simulation/simulation_resources/simulation_worlds/subaru/meshes/subaru.mtl
+simulation/simulation_resources/simulation_worlds/subaru/meshes/subaru.obj
 
 # Examples
 /aircraft/aircraft_resources/missions/cat.yaml
