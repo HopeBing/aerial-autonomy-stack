@@ -28,7 +28,7 @@ GROUND="${GROUND:-false}" # Options: true, false (default)
 if [[ "$GROUND" == "true" ]]; then
   # This is a bit hacky, but allows to use the deploy_run.sh script for the ground container
   # Without GPU requirements: --device /dev/dri --gpus all --env NVIDIA_DRIVER_CAPABILITIES=all
-  # Forcing HEADLESS to false, and opening REMOTE_VIDEO_STREAMS
+  # Forcing HEADLESS to false, opening REMOTE_VIDEO_STREAMS and SSH_CONNECTIONS
   xhost +local:docker # Grant access to the X server
   docker run -it --rm \
     --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
@@ -39,6 +39,7 @@ if [[ "$GROUND" == "true" ]]; then
     --env ROS_DOMAIN_ID=$GROUND_ID \
     --env HOST_INPUT_GID=$(getent group input | cut -d: -f3) \
     --env REMOTE_VIDEO_STREAMS=true \
+    --env SSH_CONNECTIONS=true \
     --net=host \
     --privileged \
     --name ground-container \
@@ -87,6 +88,7 @@ docker run $DOCKER_RUN_FLAGS \
   --env SIM_SUBNET=$SIM_SUBNET --env AIR_SUBNET=$AIR_SUBNET --env SIM_ID=$SIM_ID --env GROUND_ID=$GROUND_ID \
   --env GND_CONTAINER=$GND_CONTAINER \
   --env ROS_DOMAIN_ID=$DRONE_ID \
+  --env REMOTE_VIDEO_STREAMS=true \
   --net=host \
   --privileged \
   --name aircraft-container_$DRONE_ID \

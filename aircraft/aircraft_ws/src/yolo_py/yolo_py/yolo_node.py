@@ -20,10 +20,11 @@ from cv_bridge import CvBridge
 CONF_THRESH = 0.5
 
 class YoloInferenceNode(Node):
-    def __init__(self, headless, hitl, hfov, vfov):
+    def __init__(self, headless, hitl, remote_video_streams, hfov, vfov):
         super().__init__('yolo_inference_node')
         self.headless = headless
         self.hitl = hitl
+        self.remote_video_streams = remote_video_streams
         self.hfov = hfov
         self.vfov = vfov
         self.architecture = platform.machine()
@@ -181,7 +182,7 @@ class YoloInferenceNode(Node):
                     break
 
             # Only on Jetson, stream to the ground station via UDP using GStreamer on ports 5001, 5002, ..., based on DRONE_ID
-            if self.architecture == 'aarch64':
+            if self.remote_video_streams and (self.architecture == 'aarch64'):
                 if not hasattr(self, 'gnd_stream_writer'):
                     h, w = frame.shape[:2]
                     gnd_ip = os.getenv('AIR_SUBNET', '10.22') + '.90.' + os.getenv('GROUND_ID', '101')
@@ -372,13 +373,14 @@ def main(args=None):
     parser = argparse.ArgumentParser(description="YOLO ROS2 Inference Node.")
     parser.add_argument('--headless', action='store_true', help="Run in headless mode.")
     parser.add_argument('--hitl', action='store_true', help="Open camerafrom gz-sim for HITL.")
+    parser.add_argument('--remote-video-streams', action='store_true', help="Send video streams to the ground container.")
     parser.add_argument('--hfov', type=float, default=90.0, help="Horizontal field of view in degrees.")
     parser.add_argument('--vfov', type=float, default=60.0, help="Vertical field of view in degrees.")
     cli_args, ros_args = parser.parse_known_args()
 
     rclpy.init(args=ros_args)
 
-    yolo_node = YoloInferenceNode(headless=cli_args.headless, hitl=cli_args.hitl, hfov=cli_args.hfov, vfov=cli_args.vfov)
+    yolo_node = YoloInferenceNode(headless=cli_args.headless, hitl=cli_args.hitl, remote_video_streams=cli_args.remote_video_streams, hfov=cli_args.hfov, vfov=cli_args.vfov)
     yolo_node.run_inference_loop()
     
     yolo_node.destroy_node()

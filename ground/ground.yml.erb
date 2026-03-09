@@ -6,6 +6,7 @@
 
   simulated_time = ENV.fetch('SIMULATED_TIME', 'false') == 'true'
   remote_video_streams = ENV.fetch('REMOTE_VIDEO_STREAMS', 'false') == 'true'
+  ssh_connections = ENV.fetch('SSH_CONNECTIONS', 'false') == 'true'
 %>
 
 name: ground
@@ -85,5 +86,14 @@ windows:
       panes:
         <% (1..(num_quads + num_vtols)).each do |drone_id| %>
         - python3 /aas/ground_resources/comms/udp_gst_receiver.py --port <%= 5000 + drone_id %> --name "Aircraft <%= drone_id %>"
+        <% end %>
+  <% end %>
+
+  <% if ssh_connections %>
+  - ssh_connections:
+      layout: tiled
+      panes:
+        <% (1..(num_quads + num_vtols)).each do |drone_id| %>
+        - clear && echo "Use: docker exec -it aircraft-container-inst0_<%= drone_id %> tmux attach" && ssh orin@10.223.90.<%= drone_id %>
         <% end %>
   <% end %>
