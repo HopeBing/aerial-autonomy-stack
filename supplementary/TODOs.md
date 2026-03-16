@@ -16,16 +16,6 @@
 - [ ] Develop proposed approach (e.g., [DOOR-SLAM](https://github.com/MISTLab/DOOR-SLAM), [Swarm-SLAM](https://github.com/MISTLab/Swarm-SLAM))
 - [ ] Use LIVO for PX4/ArduPilot SITL control (e.g., [PX4-Multiagent-Simulation](https://github.com/TannerGilbert/PX4-Multiagent-Simulation), [Ardupilot_Multiagent_Simulation](https://github.com/aau-cns/Ardupilot_Multiagent_Simulation))
 
-### Feature: Gymnasium RL Environment and Examples
-
-> SITL and perception-enabled reinforcement learning for real-world deployment
-
-- [x] Wrap FTRT, headless, steppable simulation in `aas-gym`
-- [ ] Optimize the environment `.reset()` time
-- [ ] Conditional/AP mode startup to replace `GYM_INIT_DURATION`
-- [ ] `offboard_control` references from external topics bridged by ZeroMQ
-- [ ] ...
-
 <!-- 
 
 ### Feature: Betaflight SITL
