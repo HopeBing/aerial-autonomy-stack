@@ -283,3 +283,31 @@ SERIAL1_PROTOCOL    MAVLink2
 RC IN is the [bottom-left 5-pin port on the Jetson Baseboard](https://docs.holybro.com/autopilot/pixhawk-baseboards/pixhawk-jetson-baseboard/ports-pinout#rc-in-port)
 
 Use it to connect an RC receiver (e.g., [Radiomaster R81 V2](https://radiomasterrc.com/products/r81-receiver), [[user manual](https://cdn.shopify.com/s/files/1/0609/8324/7079/files/R81_Manual.pdf)]) and bind it to an RC (e.g., [Radiomaster Boxer 4in1](https://radiomasterrc.com/products/boxer-radio-controller-m2?variant=46486352232640), [[user manual](https://cdn.shopify.com/s/files/1/0701/8066/7584/files/BOXER_A1.9.pdf)])
+
+## Holybro X650 Parameters
+
+Autopilot parameters specific to the Holybro X650 kit
+
+### PX4 Configuration
+
+```sh
+WIP
+```
+
+### ArduPilot Configuration
+
+```sh
+# GPS
+GPSx_TYPE           1 # Auto, GPS1 or GPS2 depending on the connector used on the Jetson Baseboard
+# ESCs
+SERVOx_FUNCTION     0 # Disabled, for SERVO1 to 4, these are channels 1 to 4 on IO PWM
+MOT_PWM_TYPE	      6 # DShot600, for the Tekko32 F4 45A ESCs, using the first 4 channels on FMU PWM, i.e. SERVO9 to 12
+SERVO9_FUNCTION     33 # Motor 1, channel 1 on FMU PWM
+SERVO10_FUNCTION    34 # Motor 2, channel 2 on FMU PWM
+SERVO11_FUNCTION    35 # Motor 3, channel 3 on FMU PWM
+SERVO12_FUNCTION    36 # Motor 4, channel 4 on FMU PWM
+SERVOx_MIN          1000 # For SERVO9 to 12
+SERVOx_MAX          2000 # For SERVO9 to 12
+SERVOx_TRIM         1000 # For SERVO9 to 12
+# If needed, set BRD_SAFETY_DEFLT to 0 (Disabled) or make sure BRD_SAFETY_MASK ignores channels 9 to 12
+```
