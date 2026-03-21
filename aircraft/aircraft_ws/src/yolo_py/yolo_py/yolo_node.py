@@ -124,14 +124,21 @@ class YoloInferenceNode(Node):
 
         # Calculate hfov, vfov, and focal lengths in pixels
         diag_pixels = math.sqrt(stream_width**2 + stream_height**2)
-        f_pixels = diag_pixels / (2 * math.tan(math.radians(self.dfov) / 2)) # Pinhole approximation
-        hfov = math.degrees(2 * math.atan(stream_width / (2 * f_pixels)))
-        vfov = math.degrees(2 * math.atan(stream_height / (2 * f_pixels)))
+        if self.dfov < 180.0:
+            # Pinhole approximation for < 180deg FOV
+            self.fx = diag_pixels / (2 * math.tan(math.radians(self.dfov) / 2))
+            self.fy = self.fx
+            hfov = math.degrees(2 * math.atan(stream_width / (2 * self.fx)))
+            vfov = math.degrees(2 * math.atan(stream_height / (2 * self.fy)))
+        else:
+            # Fisheye (equidistant) approximation for >= 180deg FOV
+            self.fx = diag_pixels / math.radians(self.dfov)
+            self.fy = self.fx
+            hfov = math.degrees(stream_width / self.fx)
+            vfov = math.degrees(stream_height / self.fy)
+            # For the IMX219-200 camera, the 200-degree DFOV introduces severe distortion and the pinhole assumption breaks down at the edges
+            # If needed, perform full camera calibration and use OpenCV's cv2.fisheye.undistortPoints()
         print(f"DFOV {self.dfov}deg, HFOV {hfov:.2f}deg, VFOV {vfov:.2f}deg")
-        self.fx = stream_width / (2 * math.tan(math.radians(hfov) / 2))
-        self.fy = stream_height / (2 * math.tan(math.radians(vfov) / 2))
-        # For the IMX219-200 camera, the 200-degree DFOV introduces severe distortion and the pinhole assumption breaks down at the edges
-        # If needed, perform full camera calibration and use OpenCV's cv2.fisheye.undistortPoints()
 
         # Load YOLO model and runtime
         # Options, from fastest to most accurate, <10MB to >100MB: yolo26n, yolo26s, yolo26m, yolo26l, yolo26x, export in Dockerfile.aircraft
@@ -321,8 +328,12 @@ class YoloInferenceNode(Node):
 
         dx = center_x - w_half
         dy = h_half - center_y
-        azimuths = np.degrees(np.arctan(dx / self.fx))
-        elevations = np.degrees(np.arctan(dy / self.fy))
+        if self.dfov < 180.0: # Pinhole approximation
+            azimuths = np.degrees(np.arctan(dx / self.fx))
+            elevations = np.degrees(np.arctan(dy / self.fy))
+        else: # Linear fisheye mapping
+            azimuths = np.degrees(dx / self.fx)
+            elevations = np.degrees(dy / self.fy)
 
         # Construct Message
         detection_array = Detection2DArray()

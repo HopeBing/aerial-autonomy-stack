@@ -1,7 +1,7 @@
 sensors:
 
   camera_intrinsics:
-    diagonal_fov_deg: 120.0
+    diagonal_fov_deg: 100.0
     width: 320
     height: 240
     update_rate: 8
@@ -10,11 +10,11 @@ sensors:
 
   lidar_intrinsics:
     horizontal_samples: 240
-    h_min_angle: -3.14159
-    h_max_angle: 3.14159
+    h_min_angle_deg: -180.0
+    h_max_angle_deg: 180.0
     vertical_samples: 40
-    v_min_angle: 0.12217
-    v_max_angle: 0.90757
+    v_min_angle_deg: 7.0
+    v_max_angle_deg: 52.0
     min_range: 0.1
     max_range: 70.0
     range_resolution: 0.01

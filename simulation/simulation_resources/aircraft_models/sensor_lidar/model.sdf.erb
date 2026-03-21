@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<%
+  # Degrees to radians
+  deg_to_rad = Math::PI / 180.0
+  h_min_rad = lidar_intrinsics['h_min_angle_deg'].to_f * deg_to_rad
+  h_max_rad = lidar_intrinsics['h_max_angle_deg'].to_f * deg_to_rad
+  v_min_rad = lidar_intrinsics['v_min_angle_deg'].to_f * deg_to_rad
+  v_max_rad = lidar_intrinsics['v_max_angle_deg'].to_f * deg_to_rad
+%>
 <sdf version='1.9'>
   <model name="sensor_lidar">
     <link name="lidar/base_link">
@@ -35,14 +43,14 @@
             <horizontal>
               <samples><%= lidar_intrinsics['horizontal_samples'] %></samples>
               <resolution>1</resolution>
-              <min_angle><%= lidar_intrinsics['h_min_angle'] %></min_angle>
-              <max_angle><%= lidar_intrinsics['h_max_angle'] %></max_angle>
+              <min_angle><%= h_min_rad.round(6) %></min_angle>
+              <max_angle><%= h_max_rad.round(6) %></max_angle>
             </horizontal>
             <vertical>
               <samples><%= lidar_intrinsics['vertical_samples'] %></samples>
               <resolution>1</resolution>
-              <min_angle><%= lidar_intrinsics['v_min_angle'] %></min_angle>
-              <max_angle><%= lidar_intrinsics['v_max_angle'] %></max_angle>
+              <min_angle><%= v_min_rad.round(6) %></min_angle>
+              <max_angle><%= v_max_rad.round(6) %></max_angle>
             </vertical>
           </scan>
           <range>

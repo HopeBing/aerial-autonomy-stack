@@ -25,7 +25,9 @@
   # Load simulated camera parameters from the sensor_config.yaml file
   require 'yaml'
   sensor_config = YAML.load_file('/aas/aircraft_resources/sensor_config.yaml')
-  dfov_deg = sensor_config['sensors']['camera_intrinsics']['diagonal_fov_deg']
+  raw_dfov_deg = sensor_config['sensors']['camera_intrinsics']['diagonal_fov_deg'].to_f
+  # Ensure the DFOV is capped as in sensor_camera/model.sdf.erb
+  dfov_deg = [raw_dfov_deg, 175.0].min
 %>
 
 name: drone
