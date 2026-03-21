@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<%
+  # Degrees to radians
+  deg_to_rad = Math::PI / 180.0
+  h_min_rad = lidar_intrinsics['h_min_angle_deg'].to_f * deg_to_rad
+  h_max_rad = lidar_intrinsics['h_max_angle_deg'].to_f * deg_to_rad
+  v_min_rad = lidar_intrinsics['v_min_angle_deg'].to_f * deg_to_rad
+  v_max_rad = lidar_intrinsics['v_max_angle_deg'].to_f * deg_to_rad
+%>
 <sdf version='1.9'>
   <model name="sensor_lidar">
     <link name="lidar/base_link">
@@ -33,22 +41,22 @@
         <lidar>
           <scan>
             <horizontal>
-              <samples>240</samples>
+              <samples><%= lidar_intrinsics['horizontal_samples'] %></samples>
               <resolution>1</resolution>
-              <min_angle>-3.14159</min_angle>
-              <max_angle>3.14159</max_angle>
+              <min_angle><%= h_min_rad.round(6) %></min_angle>
+              <max_angle><%= h_max_rad.round(6) %></max_angle>
             </horizontal>
             <vertical>
-              <samples>40</samples>
+              <samples><%= lidar_intrinsics['vertical_samples'] %></samples>
               <resolution>1</resolution>
-              <min_angle>0.12217</min_angle>
-              <max_angle>0.90757</max_angle>
+              <min_angle><%= v_min_rad.round(6) %></min_angle>
+              <max_angle><%= v_max_rad.round(6) %></max_angle>
             </vertical>
           </scan>
           <range>
-            <min>0.1</min>
-            <max>70.0</max>
-            <resolution>0.01</resolution>
+            <min><%= lidar_intrinsics['min_range'] %></min>
+            <max><%= lidar_intrinsics['max_range'] %></max>
+            <resolution><%= lidar_intrinsics['range_resolution'] %></resolution>
           </range>
           <noise>
             <type>gaussian</type>
@@ -57,7 +65,7 @@
           </noise>
         </lidar>
         <always_on>1</always_on>
-        <update_rate>4</update_rate>
+        <update_rate><%= lidar_intrinsics['update_rate'] %></update_rate>
         <visualize>true</visualize>
         <!-- <topic>lidar3d</topic> -->
       </sensor>

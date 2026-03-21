@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import threading
 import queue
 import time
+import math
 import platform
 
 from vision_msgs.msg import Detection2DArray, Detection2D, BoundingBox2D, ObjectHypothesis, ObjectHypothesisWithPose
@@ -20,13 +21,14 @@ from cv_bridge import CvBridge
 CONF_THRESH = 0.5
 
 class YoloInferenceNode(Node):
-    def __init__(self, headless, hitl, remote_video_streams, hfov, vfov):
+    def __init__(self, headless, hitl, remote_video_streams, dfov):
         super().__init__('yolo_inference_node')
         self.headless = headless
         self.hitl = hitl
         self.remote_video_streams = remote_video_streams
-        self.hfov = hfov
-        self.vfov = vfov
+        self.dfov = dfov
+        self.fx = None
+        self.fy = None
         self.architecture = platform.machine()
         
         # Load classes
@@ -36,35 +38,10 @@ class YoloInferenceNode(Node):
         colors_rgba = plt.cm.hsv(np.linspace(0, 1, len(self.classes)))
         self.colors = (colors_rgba[:, [2, 1, 0]] * 255).astype(np.uint8) # From RGBA (0-1 float) to BGR (0-255 int)
 
-        # Load model and runtime
-        # Options, from fastest to most accurate, <10MB to >100MB: yolo26n, yolo26s, yolo26m, yolo26l, yolo26x, export in Dockerfile.aircraft
-        if self.architecture == 'x86_64':
-            model_path = "/aas/yolo/yolo26n_320.onnx" # Simulated camera in sensor_camera/model.sdf is 320x240
-            self.input_size = 320 # YOLO input size
-            print("Loading CUDAExecutionProvider on AMD64 (x86) architecture.")
-            self.session = ort.InferenceSession(model_path, providers=["CUDAExecutionProvider"]) # For simulation
-        elif self.architecture == 'aarch64':
-            model_path = "/aas/yolo/yolo26n_640.onnx" # Real CSI camera IMX219-200 is 1280x720, we resize to 640x640 for YOLO (this is slightly wasteful when self.hitl = True)
-            self.input_size = 640 # YOLO input size
-            print("Loading (with cache) TensorrtExecutionProvider on ARM64 architecture (Jetson).") # The first cache built takes ~10'
-            cache_path = "/tensorrt_cache" # Mounted as volume by main_deploy.sh
-            os.makedirs(cache_path, exist_ok=True)
-            provider_options = {
-                'trt_engine_cache_enable': True,
-                'trt_engine_cache_path': cache_path,
-                'trt_fp16_enable': True, # Optional: enable FP16 for Jetson speedup (from 22 to 12ms on YOLOn, longer cache build time, 10 vs 3')
-            }
-            self.session = ort.InferenceSession(
-                model_path,
-                providers=[('TensorrtExecutionProvider', provider_options)] # For deployment on Jetson Orin, 60Hz inference on the IMX219-200
-            )
-        else:
-            print(f"Loading CPUExecutionProvider on an unknown architecture: {self.architecture}")
-            self.session = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"]) # Backup, not recommended
-        self.input_name = self.session.get_inputs()[0].name
-        
-        # Confirm execution providers
-        self.get_logger().info(f"Execution providers in use: {self.session.get_providers()}")
+        # Defer model loading until the video stream is opened in run_inference_loop
+        self.input_size = None
+        self.session = None
+        self.input_name = None
         
         # Create publishers
         self.detection_publisher = self.create_publisher(Detection2DArray, 'detections', 10)
@@ -141,6 +118,64 @@ class YoloInferenceNode(Node):
         # cap = cv2.VideoCapture("/sample.mp4") # Load sample video for testing
         assert cap.isOpened(), "Failed to open video stream"
         print(f"Pipeline FPS: {cap.get(cv2.CAP_PROP_FPS)}")
+        stream_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        stream_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        print(f"Stream Resolution: {stream_width}x{stream_height}")
+
+        # Calculate hfov, vfov, and focal lengths in pixels
+        diag_pixels = math.sqrt(stream_width**2 + stream_height**2)
+        if self.dfov < 180.0:
+            # Pinhole approximation for < 180deg FOV
+            self.fx = diag_pixels / (2 * math.tan(math.radians(self.dfov) / 2))
+            self.fy = self.fx
+            hfov = math.degrees(2 * math.atan(stream_width / (2 * self.fx)))
+            vfov = math.degrees(2 * math.atan(stream_height / (2 * self.fy)))
+        else:
+            # Fisheye (equidistant) approximation for >= 180deg FOV
+            self.fx = diag_pixels / math.radians(self.dfov)
+            self.fy = self.fx
+            hfov = math.degrees(stream_width / self.fx)
+            vfov = math.degrees(stream_height / self.fy)
+            # For the IMX219-200 camera, the 200-degree DFOV introduces severe distortion and the pinhole assumption breaks down at the edges
+            # If needed, perform full camera calibration and use OpenCV's cv2.fisheye.undistortPoints()
+        print(f"DFOV {self.dfov}deg, HFOV {hfov:.2f}deg, VFOV {vfov:.2f}deg")
+
+        # Load YOLO model and runtime
+        # Options, from fastest to most accurate, <10MB to >100MB: yolo26n, yolo26s, yolo26m, yolo26l, yolo26x, export in Dockerfile.aircraft
+        if self.architecture == 'x86_64':
+            max_dim = max(stream_width, stream_height)
+            if max_dim <= 320:
+                print("Stream resolution is <=320. Selecting 320 model.")
+                model_path = "/aas/yolo/yolo26n_320.onnx"
+                self.input_size = 320 # YOLO input size
+            else:
+                print("Stream resolution is >320. Selecting 640 model.")
+                model_path = "/aas/yolo/yolo26n_640.onnx"
+                self.input_size = 640 # YOLO input size
+            print("Loading CUDAExecutionProvider on AMD64 (x86) architecture.")
+            self.session = ort.InferenceSession(model_path, providers=["CUDAExecutionProvider"]) # For simulation
+        elif self.architecture == 'aarch64':
+            model_path = "/aas/yolo/yolo26n_640.onnx" # Real CSI camera IMX219-200 is 1280x720, we resize to 640x640 for YOLO (this is slightly wasteful when self.hitl = True)
+            self.input_size = 640 # YOLO input size
+            print("Loading (with cache) TensorrtExecutionProvider on ARM64 architecture (Jetson).") # The first cache built takes ~10'
+            cache_path = "/tensorrt_cache" # Mounted as volume by main_deploy.sh
+            os.makedirs(cache_path, exist_ok=True)
+            provider_options = {
+                'trt_engine_cache_enable': True,
+                'trt_engine_cache_path': cache_path,
+                'trt_fp16_enable': True, # Optional: enable FP16 for Jetson speedup (from 22 to 12ms on YOLOn, longer cache build time, 10 vs 3')
+            }
+            self.session = ort.InferenceSession(
+                model_path,
+                providers=[('TensorrtExecutionProvider', provider_options)] # For deployment on Jetson Orin, 60Hz inference on the IMX219-200
+            )
+        else:
+            print(f"Loading CPUExecutionProvider on an unknown architecture: {self.architecture}")
+            self.session = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"]) # Backup, not recommended
+        self.input_name = self.session.get_inputs()[0].name
+
+        # Confirm execution providers
+        self.get_logger().info(f"Execution providers in use: {self.session.get_providers()}")
 
         if not self.headless:
             drone_id = os.getenv('DRONE_ID', '1')
@@ -285,15 +320,20 @@ class YoloInferenceNode(Node):
         h, w = frame_shape[:2]
         w_half = w * 0.5
         h_half = h * 0.5
-        
+
         center_x = boxes[:, 0]
         center_y = boxes[:, 1]
         widths   = boxes[:, 2]
         heights  = boxes[:, 3]
-        norm_x = (center_x - w_half) / w
-        norm_y = (h_half - center_y) / h
-        azimuths = norm_x * self.hfov
-        elevations = norm_y * self.vfov
+
+        dx = center_x - w_half
+        dy = h_half - center_y
+        if self.dfov < 180.0: # Pinhole approximation
+            azimuths = np.degrees(np.arctan(dx / self.fx))
+            elevations = np.degrees(np.arctan(dy / self.fy))
+        else: # Linear fisheye mapping
+            azimuths = np.degrees(dx / self.fx)
+            elevations = np.degrees(dy / self.fy)
 
         # Construct Message
         detection_array = Detection2DArray()
@@ -375,13 +415,12 @@ def main(args=None):
     parser.add_argument('--headless', action='store_true', help="Run in headless mode.")
     parser.add_argument('--hitl', action='store_true', help="Open camerafrom gz-sim for HITL.")
     parser.add_argument('--remote-video-streams', action='store_true', help="Send video streams to the ground container.")
-    parser.add_argument('--hfov', type=float, default=90.0, help="Horizontal field of view in degrees.")
-    parser.add_argument('--vfov', type=float, default=60.0, help="Vertical field of view in degrees.")
+    parser.add_argument('--dfov', type=float, default=100.0, help="Diagonal field of view in degrees.")
     cli_args, ros_args = parser.parse_known_args()
 
     rclpy.init(args=ros_args)
 
-    yolo_node = YoloInferenceNode(headless=cli_args.headless, hitl=cli_args.hitl, remote_video_streams=cli_args.remote_video_streams, hfov=cli_args.hfov, vfov=cli_args.vfov)
+    yolo_node = YoloInferenceNode(headless=cli_args.headless, hitl=cli_args.hitl, remote_video_streams=cli_args.remote_video_streams, dfov=cli_args.dfov)
     yolo_node.run_inference_loop()
     
     yolo_node.destroy_node()

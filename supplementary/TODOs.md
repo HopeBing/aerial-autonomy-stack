@@ -1,32 +1,8 @@
 # TODOs
 
+<!--
+
 ## Roadmap
-
-### Feature: LiDAR-inertial Odometry and SLAM
-
-> Advanced localization and mapping baselines and capabilities
-
-- [x] [KISS-ICP](https://github.com/PRBonn/kiss-icp) LiDAR odometry (LO) baseline
-- [ ] Add config files (and shell) for the resolution/rate/extrinsic of the camera and lidar sensors/pipelines/topics
-- [ ] Add visual-inertial (VIO) baseline (e.g., [open_vins](https://github.com/rpng/open_vins))
-- [ ] Add  LiDAR-intertial (LIO) baseline (e.g., [SPARK-FAST-LIO](https://github.com/MIT-SPARK/spark-fast-lio))
-- [ ] Add  LIVO baselines (e.g., [SuperOdom](https://github.com/superxslam/SuperOdom), [FAST-LIVO2](https://github.com/hku-mars/FAST-LIVO2))
-- [ ] Create a 3D world.sdf for LIVO-based navigation and mapping (i.e., textured and obstacle rich)
-- [ ] Compare localization performance for a pre-defined navigation task at varying speeds
-- [ ] Develop proposed approach (e.g., [DOOR-SLAM](https://github.com/MISTLab/DOOR-SLAM), [Swarm-SLAM](https://github.com/MISTLab/Swarm-SLAM))
-- [ ] Use LIVO for PX4/ArduPilot SITL control (e.g., [PX4-Multiagent-Simulation](https://github.com/TannerGilbert/PX4-Multiagent-Simulation), [Ardupilot_Multiagent_Simulation](https://github.com/aau-cns/Ardupilot_Multiagent_Simulation))
-
-### Feature: Gymnasium RL Environment and Examples
-
-> SITL and perception-enabled reinforcement learning for real-world deployment
-
-- [x] Wrap FTRT, headless, steppable simulation in `aas-gym`
-- [ ] Optimize the environment `.reset()` time
-- [ ] Conditional/AP mode startup to replace `GYM_INIT_DURATION`
-- [ ] `offboard_control` references from external topics bridged by ZeroMQ
-- [ ] ...
-
-<!-- 
 
 ### Feature: Betaflight SITL
 

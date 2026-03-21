@@ -210,7 +210,7 @@ FROM ros2-px4msgs-dds-mavros-yolo-kissicp-zenoh-image AS aircraft-dev-image
 # Save the YOLO model weights (ONNX, Opset 12) and class names
 WORKDIR /aas/yolo
 # Model options (from fastest to most accurate, <10MB to >100MB): yolo26n, yolo26s, yolo26m, yolo26l, yolo26x
-# Export standard 640 static (for Jetson deployment) as yolo26n_640.onnx and smaller 320 static (for SITL/HITL) as yolo26n_320.onnx
+# Export standard 640 static as yolo26n_640.onnx and smaller 320 static as yolo26n_320.onnx
 RUN /yolo-env/bin/python3 -c "from ultralytics import YOLO; YOLO('yolo26n.pt').export(format='onnx', opset=12, imgsz=640)" && \
     mv yolo26n.onnx yolo26n_640.onnx && \
     /yolo-env/bin/python3 -c "from ultralytics import YOLO; YOLO('yolo26n.pt').export(format='onnx', opset=12, imgsz=320)" && \
@@ -240,6 +240,9 @@ COPY aircraft/aircraft_resources/patches/kiss_icp.rviz /aas/github_ws/src/kiss-i
 COPY aircraft/aircraft_resources/patches/apm_pluginlists.yaml /opt/ros/humble/share/mavros/launch/apm_pluginlists.yaml
 RUN ln -s /aas/aircraft_resources/patches/cancellable_action.py /usr/local/bin/cancellable_action
 RUN chmod +x /aas/aircraft_resources/patches/cancellable_action.py
+
+# Copy sensor configuration
+COPY simulation/simulation_resources/aircraft_models/sensor_config.yaml /aas/aircraft_resources/sensor_config.yaml
 
 # Source the workspaces
 RUN echo "source /aas/github_ws/install/setup.bash" >> /root/.bashrc

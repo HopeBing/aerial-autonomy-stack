@@ -37,6 +37,11 @@
   physics_dt = (autopilot == 'px4') ? 0.004 : 0.002
   gym_step_size = (physics_freq_hz / gym_freq_hz).to_i
   gym_step_size = 1 if gym_step_size < 1
+
+  # Load sensor update rates from the sensor_config.yaml file
+  require 'yaml'
+  sensor_config = YAML.load_file('/aas/simulation_resources/aircraft_models/sensor_config.yaml')
+  cam_update_rate = sensor_config['sensors']['camera_intrinsics']['update_rate']
 %>
 
 name: sim
@@ -114,7 +119,7 @@ windows:
         - >
           /aas/simulation_resources/comms/gz_gst_bridge/build/gz_gst_bridge
           /world/<%= world %>/model/<%= model_name %>/<%= sensor_path %>model/simple_camera/link/mono_cam/base_link/sensor/imager/image
-          <%= "#{sim_subnet}.90.#{drone_id}" %> 5600 8
+          <%= "#{sim_subnet}.90.#{drone_id}" %> 5600 <%= cam_update_rate %>
         <% end %>
         <% if lidar %>
         - >
