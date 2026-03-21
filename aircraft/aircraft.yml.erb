@@ -21,6 +21,15 @@
   remote_video_streams = ENV.fetch('REMOTE_VIDEO_STREAMS', 'false') == 'true'
 
   gymnasium = ENV.fetch('GYMNASIUM', 'false') == 'true'
+
+  # Load simulated camera parameters from the sensor_config.yaml file to calculate dfov
+  require 'yaml'
+  sensor_config = YAML.load_file('/aas/aircraft_resources/sensor_config.yaml')
+  cam_intrinsics = sensor_config['sensors']['camera_intrinsics']
+
+  focal_length = cam_intrinsics['width'].to_f / (2.0 * Math.tan(cam_intrinsics['horizontal_fov'].to_f / 2.0))
+  diagonal = Math.sqrt(cam_intrinsics['width'].to_f**2 + cam_intrinsics['height'].to_f**2)
+  dfov_deg = (2.0 * Math.atan(diagonal / (2.0 * focal_length))) * (180.0 / Math::PI)
 %>
 
 name: drone
@@ -51,7 +60,7 @@ windows:
       layout: even-horizontal
       panes:
         <% if camera %>
-        - ros2 run yolo_py yolo_py <%= headless ? '--headless' : '' %> <%= hitl ? '--hitl' : '' %> <%= remote_video_streams ? '--remote-video-streams' : '' %> <%= simulated_time ? '--ros-args -p use_sim_time:=true' : '' %>
+        - ros2 run yolo_py yolo_py <%= headless ? '--headless' : '' %> <%= hitl ? '--hitl' : '' %> <%= remote_video_streams ? '--remote-video-streams' : '' %> <%= simulated_time ? '--ros-args -p use_sim_time:=true' : '' %> --dfov <%= simulated_time ? dfov_deg : 200.0 %>
         <% end %>
         <% if lidar %>
         - ros2 launch kiss_icp odometry.launch.py topic:=/lidar_points <%= headless ? 'visualize:=false' : '' %>

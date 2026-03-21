@@ -241,6 +241,9 @@ COPY aircraft/aircraft_resources/patches/apm_pluginlists.yaml /opt/ros/humble/sh
 RUN ln -s /aas/aircraft_resources/patches/cancellable_action.py /usr/local/bin/cancellable_action
 RUN chmod +x /aas/aircraft_resources/patches/cancellable_action.py
 
+# Copy sensor configuration
+COPY simulation/simulation_resources/aircraft_models/sensor_config.yaml /aas/aircraft_resources/sensor_config.yaml
+
 # Source the workspaces
 RUN echo "source /aas/github_ws/install/setup.bash" >> /root/.bashrc
 RUN echo "source /aas/aircraft_ws/install/setup.bash" >> /root/.bashrc
