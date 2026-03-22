@@ -195,12 +195,6 @@ cd aerial-autonomy-stack/scripts/
 
 ./check_requirements.sh                               # If needed, refer to REQUIREMENTS_UBUNTU.md and REQUIREMENTS_WSL.md to install the requirements
 ./sim_build.sh                                        # The 1st build takes ~30GB and ~30' with good internet (`Ctrl + c` and restart if needed, cached stages will be preserved)
-
-# Alternatively to running sim_build.sh, pull the pre-built images from ghcr.io
-for name in aircraft ground simulation; do
-  docker pull ghcr.io/jacopopan/${name}-image:latest
-  docker tag ghcr.io/jacopopan/${name}-image:latest ${name}-image:latest
-done
 ```
 
 <div align="right">
@@ -208,6 +202,14 @@ done
     <img src="https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/aas-amd64-build-and-test.yml/badge.svg" alt="aas build-and-test amd64">
   </a>
 </div>
+
+```sh
+# Alternatively to running ./sim_build.sh, one can also pull the pre-built images from ghcr.io:
+for name in aircraft ground simulation; do
+  docker pull ghcr.io/jacopopan/${name}-image:latest
+  docker tag ghcr.io/jacopopan/${name}-image:latest ${name}-image:latest
+done
+```
 
 > [!TIP]
 > AAS is tested on Ubuntu 22.04/24.04 with `nvidia-driver-580` using an i7-11 with 16GB RAM and RTX 3060
