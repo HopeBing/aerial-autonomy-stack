@@ -6,10 +6,12 @@ set -e
 # Find the script's path
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
+BUILD_ARGS=""
 if [ "${CLEAN_BUILD:-false}" = "true" ]; then
   rm -rf "${SCRIPT_DIR}/../github_clones"
+  BUILD_ARGS="--no-cache" # If CLEAN_BUILD is "true", rebuild everything from scratch
   docker rmi aircraft-image:latest ground-image:latest simulation-image:latest || true
-  docker builder prune -f # If CLEAN_BUILD is "true", rebuild everything from scratch
+  docker builder prune -f # Remove all dangling build cache to free up space
 fi
 
 BUILD_DOCKER=true
@@ -71,7 +73,7 @@ if [ -f "$ZIP_FILE" ]; then
 fi
 if [ "$DOWNLOAD_NEEDED" = "true" ]; then
   echo "Downloading simulation assets from $ASSETS_URL..."
-  wget -q \
+  wget -q --show-progress \
       --tries=3 \
       --retry-connrefused \
       --retry-on-http-error=403,429,500,502,503,504 \
@@ -89,13 +91,13 @@ unzip -q -o "$ZIP_FILE" -d "$SCRIPT_DIR/.."
 
 if [ "$BUILD_DOCKER" = "true" ]; then
   # The first build takes ~15' and creates a 21GB image (8GB for ros-humble-desktop with nvidia runtime, 10GB for PX4 and ArduPilot SITL)
-  docker build -t simulation-image -f "${SCRIPT_DIR}/docker/Dockerfile.simulation" "${SCRIPT_DIR}/.."
+  docker build $BUILD_ARGS -t simulation-image -f "${SCRIPT_DIR}/docker/Dockerfile.simulation" "${SCRIPT_DIR}/.."
 
   # The first build takes <5' and creates an 9GB image (8GB for ros-humble-desktop with nvidia runtime)
-  docker build -t ground-image -f "${SCRIPT_DIR}/docker/Dockerfile.ground" "${SCRIPT_DIR}/.."
+  docker build $BUILD_ARGS -t ground-image -f "${SCRIPT_DIR}/docker/Dockerfile.ground" "${SCRIPT_DIR}/.."
 
   # The first build takes ~10' and creates an 18GB image (8GB for ros-humble-desktop with nvidia runtime, 7GB for YOLO, ONNX)
-  docker build -t aircraft-image -f "${SCRIPT_DIR}/docker/Dockerfile.aircraft" "${SCRIPT_DIR}/.."
+  docker build $BUILD_ARGS -t aircraft-image -f "${SCRIPT_DIR}/docker/Dockerfile.aircraft" "${SCRIPT_DIR}/.."
 else
   echo -e "Skipping Docker builds"
 fi

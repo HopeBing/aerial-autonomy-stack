@@ -194,7 +194,13 @@ git clone https://github.com/JacopoPan/aerial-autonomy-stack.git
 cd aerial-autonomy-stack/scripts/
 
 ./check_requirements.sh                               # If needed, refer to REQUIREMENTS_UBUNTU.md and REQUIREMENTS_WSL.md to install the requirements
-./sim_build.sh                                        # The 1st build takes ~30GB and ~30' with good internet (`Ctrl + c` and restart if needed, cached stages will be preserved); alternatively, pre-build images are available on ghcr.io: docker pull ghcr.io/jacopopan/[aircraft|ground|simulation]-image:latest
+./sim_build.sh                                        # The 1st build takes ~30GB and ~30' with good internet (`Ctrl + c` and restart if needed, cached stages will be preserved)
+
+# Alternatively to running sim_build.sh, pull the pre-built images from ghcr.io
+for name in aircraft ground simulation; do
+  docker pull ghcr.io/jacopopan/${name}-image:latest
+  docker tag ghcr.io/jacopopan/${name}-image:latest ${name}-image:latest
+done
 ```
 
 <div align="right">
@@ -355,7 +361,7 @@ python3 /aas/simulation_resources/scripts/gz_wind.py --stop_wind
 > docker images                         # List images
 > docker image prune                    # Remove untagged images
 > docker rmi <image_name_or_id>         # Remove a specific image
-> docker builder prune                  # Clear the cache system-wide
+> docker builder prune                  # Clear all dangling cache
 > ```
 > </details>
 
